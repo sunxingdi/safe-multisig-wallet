@@ -146,7 +146,7 @@ moduleAddresses:  Result(0) []
 
 [Safe开发者文档](https://docs.safe.global/getting-started/readme)
 
-[多签钱包Gnosis Safe交互教程](https://mirror.xyz/0x15d789D4Dd128CEA5D8E6b6f0adAbe910e5Fd100/oRZCwAL_YdgksKZFd9HpCnITGM4bJ4UkIQ4MdgL-OrA)
+[DAO工具101 #1: Gnosis Safe多签钱包](https://peopledao.mirror.xyz/nFCBXda8B5ZxQVqSbbDOn2frFDpTxNVtdqVBXGIjj0s)
 
 [多签钱包Gnosis Safe使用教程](https://mirror.xyz/iamdk.eth/AiicRuqXRadeCoU38IyV7h1YmPEo8fmXF_eLLOEdyeA)
 
