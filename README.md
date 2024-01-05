@@ -57,6 +57,91 @@ Safe多签钱包是一个智能合约账户，只不过这个智能合约账户�
 交易信息填写完成后，需要2/3个Owners签名才能创建交易。
 等待矿工确认完成，交易完成。
 
+---
+
+### Safe多签钱包JS交互流程
+
+创建EthersAdapter实例
+
+```
+const ethAdapter = new EthersAdapter({
+    ethers,
+    signerOrProvider: signerOwner1
+})
+```
+
+创建safeSdk对象
+
+```
+const safeSdk: Safe = await Safe.create({ ethAdapter, safeAddress })
+```
+
+创建Safe交易
+
+```
+const safeTransactionData: MetaTransactionData = {
+    to: 'toAddress',
+    value: String(ethers.parseEther("0.01")),
+    data: '0x'
+}
+const safeTransaction = await safeSdk.createTransaction({ transactions: [safeTransactionData] })
+```
+
+创建交易后，签名所有者可使用链下Safe客户端签名，或使用链上签名。
+
+---
+
+执行命令:
+
+```shell
+npx hardhat run .\scripts\safe-multisig-wallet.ts --network sepolia
+```
+
+打印输出：
+
+```
+ethers version:  6.9.2
+
+ 设置网络...
+
+ 获取账户...
+网络设置：使用远端RPC网络 sepolia
+
+ 账户列表...
+signerOwner1:  0x6BBC************************************
+signerOwner2:  0xeBA0************************************
+
+ 创建EthersAdapter实例...
+
+ 创建safeSdk对象...
+
+ Safe交互...
+safeAddress:  0x9F83************************************
+contractVersion:  1.3.0
+ownerAddresses:  [
+  '0x6BBC************************************',
+  '0xeBA0************************************'
+]
+nonce:  3
+threshold:  2
+chainId:  11155111n
+balance:  170000000000000000n
+guardAddress:  0x0000000000000000000000000000000000000000
+moduleAddresses:  Result(0) []
+0x6BBC************************************ is owner? true
+0xeBA0************************************ is owner? true
+0xBcd4************************************ is owner? false
+
+ 创建Safe交易(2/2多签)...
+
+ 等待signerOwner1链上签名...
+
+ 等待signerOwner2链上签名...
+
+ Safe交易完成...
+```
+
+
 ### 参考文章
 
 [Safe开发者文档](https://docs.safe.global/getting-started/readme)
@@ -64,3 +149,5 @@ Safe多签钱包是一个智能合约账户，只不过这个智能合约账户�
 [多签钱包Gnosis Safe交互教程](https://mirror.xyz/0x15d789D4Dd128CEA5D8E6b6f0adAbe910e5Fd100/oRZCwAL_YdgksKZFd9HpCnITGM4bJ4UkIQ4MdgL-OrA)
 
 [多签钱包Gnosis Safe使用教程](https://mirror.xyz/iamdk.eth/AiicRuqXRadeCoU38IyV7h1YmPEo8fmXF_eLLOEdyeA)
+
+[@safe-global/protocol-kit插件指导](https://www.npmjs.com/package/@safe-global/protocol-kit?activeTab=readme)

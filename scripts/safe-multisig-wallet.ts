@@ -37,16 +37,16 @@ async function set_network() {
 
 async function main() {
 
-  // 设置网络
+  console.log("\n", "设置网络...")
   set_network()
 
-  // 获取账户
+  console.log("\n", "获取账户...")
   const [signerOwner1, signerOwner2] = await ethers.getSigners();
   console.log("\n", "账户列表...")
   console.log("signerOwner1: ", signerOwner1.address) //多签所有者+创建者
   console.log("signerOwner2: ", signerOwner2.address) //多签所有者
 
-  // 创建EthersAdapter实例
+  console.log("\n", "创建EthersAdapter实例...")
   const ethAdapter = new EthersAdapter({
     ethers,
     signerOrProvider: signerOwner1
@@ -54,13 +54,13 @@ async function main() {
 
   const safeAddress = SAFE_MULTISIG_WALLET_ADDR;
 
-  // 创建safeSdk对象
+  console.log("\n", "创建safeSdk对象...")
   const safeSdk: Safe = await Safe.create({ ethAdapter, safeAddress })
 
   // 连接safeSdk对象
   // const safeSdk = await safeSdk.connect({ ethAdapter, safeAddress })
 
-  // 交互示例
+  console.log("\n", "Safe交互...")
   const getSafeAddress = await safeSdk.getAddress()
   console.log("safeAddress: ", getSafeAddress)
   
@@ -98,15 +98,38 @@ async function main() {
   const isOwner3 = await safeSdk.isOwner(TestAddress)
   console.log(TestAddress, "is owner?", isOwner3)  
 
-  //创建Safe交易
-  // const safeTransactionData: MetaTransactionData = {
-  //   to: '0x<address>',
-  //   value: '<eth_value_in_wei>',
-  //   data: '0x<data>'
-  // }
-  // const safeTransaction = await safeSdk.createTransaction({ transactions: [safeTransactionData] })
+  console.log("\n", "创建Safe交易(2/2多签)...")
+  const safeTransactionData: MetaTransactionData = {
+    to: '0x49385401522D8BA7667352b4F84f9E0C1aB8591D',
+    value: String(ethers.parseEther("0.01")),
+    data: '0x'
+  }
+  const safeTransaction = await safeSdk.createTransaction({ transactions: [safeTransactionData] })
 
-}   
+  // console.log("\n", "等待signerOwner1链下签名...")
+  // 代码将等待客户端链下签名完成，await 关键字会使代码暂停，直到签名完成并返回签名后的 signedSafeTransaction 对象。
+  // const signedSafeTransaction = await safeSdk.signTransaction(safeTransaction)
+
+  console.log("\n", "等待signerOwner1链上签名...")
+  // 创建EthersAdapter实例者与第一个签名者一致，上方已创建实例，无需再创建实例
+  // const ethAdapterOwner1 = new EthersAdapter({ ethers, signerOrProvider: signerOwner1 }) 
+  // const safeSdk = await safeSdk.connect({ ethAdapter: ethAdapterOwner1, safeAddress })
+  const txHash = await safeSdk.getTransactionHash(safeTransaction)
+  const approveTxResponse = await safeSdk.approveTransactionHash(txHash)
+  let txReceive = await approveTxResponse.transactionResponse?.wait()
+  console.log("\ntxReceive:\n", txReceive)
+  console.log("\nsignatures:\n", safeTransaction.signatures)
+  
+  console.log("\n", "等待signerOwner2链上签名...")
+  const ethAdapterOwner2 = new EthersAdapter({ ethers, signerOrProvider: signerOwner2 })
+  const safeSdk2 = await safeSdk.connect({ ethAdapter: ethAdapterOwner2, safeAddress })
+  const executeTxResponse = await safeSdk2.executeTransaction(safeTransaction)
+  txReceive = await executeTxResponse.transactionResponse?.wait()
+  console.log("\ntxReceive:\n", txReceive)
+  console.log("\nsignatures:\n", safeTransaction.signatures)
+
+  console.log("\n", "Safe交易完成...")
+}
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.           
